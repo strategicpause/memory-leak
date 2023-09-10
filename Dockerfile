@@ -1,11 +1,9 @@
 FROM golang:latest as build
 
 WORKDIR /src
-COPY go.mod /src/go.mod
-COPY main.go /src/main.go
+COPY . /src
 
-RUN go build -o /memory-leak
+RUN go build -o /leak
 
 FROM busybox:latest
-COPY --from=build /memory-leak /memory-leak
-CMD ["/memory-leak"]
+COPY --from=build /leak /leak
