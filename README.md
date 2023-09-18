@@ -30,9 +30,10 @@ This will turn off swap to make sure OOMs can be recreated at the expected memor
 TCP Leak
 ~~~
 $ podman run \
---memory=1024m \
+--memory=128m \
 --name=tcp-leak \
 --rm \
 localhost/memory-leak \
-./leak tcp
+./leak socket --size 16
 ~~~
+The above command will allocate sockets, establish connections, and write 16 KiB. 

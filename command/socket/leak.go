@@ -12,21 +12,11 @@ const (
 	// defined by  /proc/sys/net/core/somaxconn.
 	MaxConnections = 4096
 	StartPort      = 9090
-	// By default each established socket connection will write 1 KiB to the buffer.
-	KiB = 1024
 )
 
 var (
 	LocalAddr = [4]byte{127, 0, 0, 1}
 )
-
-type Params struct {
-	NumSockets            int64
-	NetworkAddressDomain  int
-	ConnectionType        int
-	CommunicationProtocol int
-	PauseTimeInSeconds    time.Duration
-}
 
 func tcpLeak(params *Params) error {
 	PrintParams(params)
@@ -60,7 +50,7 @@ func tcpLeak(params *Params) error {
 			return err
 		}
 
-		_, err = unix.Write(clientFd, make([]byte, KiB))
+		_, err = unix.Write(clientFd, make([]byte, params.DataSize))
 
 		if i%100 == 0 {
 			metrics.PrintSocketStats()
@@ -106,7 +96,7 @@ func resetServer(params *Params, port int) (chan bool, error) {
 }
 
 func PrintParams(params *Params) {
-	fmt.Printf("NumSockets: %v\n", params.NumSockets)
+	fmt.Printf("NumSockets: %v\tSize: %v\n", params.NumSockets, params.DataSize)
 }
 
 func Must[T any](obj T, err error) T {

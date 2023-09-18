@@ -7,9 +7,11 @@ import (
 )
 
 const (
-	NumSocketsName            = "num-sockets"
-	CommunicationProtocolName = "comm-protocol"
-	PauseDurationName         = "pause"
+	NumSocketsName    = "num-sockets"
+	SizeName          = "size"
+	PauseDurationName = "pause"
+
+	KiB = 1024
 )
 
 func Register() cli.Command {
@@ -33,7 +35,21 @@ func flags() []cli.Flag {
 			Usage: "Time between allocations in seconds.",
 			Value: time.Second,
 		},
+		cli.IntFlag{
+			Name:  SizeName,
+			Usage: "Number of KiB to write per per socket.",
+			Value: 4,
+		},
 	}
+}
+
+type Params struct {
+	NumSockets            int64
+	NetworkAddressDomain  int
+	ConnectionType        int
+	CommunicationProtocol int
+	DataSize              int
+	PauseTimeInSeconds    time.Duration
 }
 
 func action(ctx *cli.Context) error {
@@ -42,6 +58,7 @@ func action(ctx *cli.Context) error {
 		NetworkAddressDomain:  unix.AF_INET,
 		ConnectionType:        unix.SOCK_STREAM,
 		CommunicationProtocol: unix.IPPROTO_TCP,
+		DataSize:              ctx.Int(SizeName) * KiB,
 		PauseTimeInSeconds:    ctx.Duration(PauseDurationName),
 	}
 	return tcpLeak(params)
