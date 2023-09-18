@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/strategicpause/memory-leak/command/memory"
-	"github.com/strategicpause/memory-leak/command/tcp"
+	"github.com/strategicpause/memory-leak/command/socket"
 	"github.com/urfave/cli"
 	"log"
 	"os"
@@ -21,6 +21,6 @@ func main() {
 func RegisterCommands() cli.Commands {
 	return cli.Commands{
 		memory.Register(),
-		tcp.Register(),
+		socket.Register(),
 	}
 }

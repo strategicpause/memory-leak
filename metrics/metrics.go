@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+	"github.com/prometheus/procfs"
 	"runtime"
 )
 
@@ -38,4 +39,19 @@ func BToMiB[T uint64 | uint32](b T) uint64 {
 
 func NsToUs(s uint64) uint64 {
 	return s / 1000
+}
+
+func PrintSocketStats() {
+	fs, _ := procfs.NewDefaultFS()
+	stats, _ := fs.NetSockstat()
+	for _, protocol := range stats.Protocols {
+		if protocol.Protocol == "TCP" {
+			fmt.Printf("TCP: inuse %d orphan %d tw %d alloc %d mem %d total %d\n", protocol.InUse,
+				*protocol.Orphan,
+				*protocol.TW,
+				*protocol.Alloc,
+				*protocol.Mem,
+				*stats.Used)
+		}
+	}
 }
