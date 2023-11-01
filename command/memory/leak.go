@@ -9,6 +9,7 @@ import (
 type Params struct {
 	MaxMemoryInBytes   uint64
 	BlockSizeInBytes   uint64
+	StepTimeInSeconds  time.Duration
 	PauseTimeInSeconds time.Duration
 }
 
@@ -24,9 +25,11 @@ func memoryLeak(params *Params) error {
 			list[i][j] = 0
 		}
 		metrics.PrintMemory()
-		time.Sleep(params.PauseTimeInSeconds)
+		time.Sleep(params.StepTimeInSeconds)
 	}
 
+	fmt.Printf("Waiting for %s.\n", params.PauseTimeInSeconds.String())
+	time.Sleep(params.PauseTimeInSeconds)
 	fmt.Println("Done")
 
 	return nil

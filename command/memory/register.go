@@ -6,9 +6,12 @@ import (
 	"github.com/urfave/cli"
 )
 
-const MaxMemoryName = "max-memory"
-const BlockSizeName = "block-size"
-const PauseDurationName = "pause"
+const (
+	MaxMemoryName     = "max-memory"
+	BlockSizeName     = "block-size"
+	StepDurationName  = "step-duration"
+	PauseDurationName = "pause-duration"
+)
 
 func Register() cli.Command {
 	return cli.Command{
@@ -32,9 +35,14 @@ func flags() []cli.Flag {
 			Value: "10MB",
 		},
 		cli.DurationFlag{
-			Name:  PauseDurationName,
+			Name:  StepDurationName,
 			Usage: "Time between allocations in seconds.",
 			Value: 1,
+		},
+		cli.DurationFlag{
+			Name:  PauseDurationName,
+			Usage: "Time to wait, in seconds, after all memory has been allocated.",
+			Value: 0,
 		},
 	}
 }
@@ -57,6 +65,7 @@ func action(ctx *cli.Context) error {
 	params := &Params{
 		MaxMemoryInBytes:   uint64(maxMemory),
 		BlockSizeInBytes:   uint64(blockSize),
+		StepTimeInSeconds:  ctx.Duration(StepDurationName),
 		PauseTimeInSeconds: ctx.Duration(PauseDurationName),
 	}
 
