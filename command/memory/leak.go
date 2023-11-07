@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"arena"
 	"fmt"
 	"github.com/strategicpause/memory-leak/metrics"
 	"time"
@@ -14,18 +15,19 @@ type Params struct {
 }
 
 func memoryLeak(params *Params) error {
+
 	PrintParams(params)
 
-	numEntries := int(params.MaxMemoryInBytes / params.BlockSizeInBytes)
-	list := make([][]byte, numEntries)
+	entries := int(params.MaxMemoryInBytes / (1024 * 1024))
 
-	for i := 0; i < numEntries; i++ {
-		list[i] = make([]byte, params.BlockSizeInBytes)
-		for j := 0; j < int(params.BlockSizeInBytes); j++ {
-			list[i][j] = 0
-		}
+	a := arena.NewArena()
+	defer a.Free()
+
+	slice := make([][]byte, entries)
+
+	for i := 0; i < entries; i++ {
+		slice[i] = arena.MakeSlice[byte](a, 1024*1024, 1024*1024)
 		metrics.PrintMemory()
-		time.Sleep(params.StepTimeInSeconds)
 	}
 
 	fmt.Printf("Waiting for %s.\n", params.PauseTimeInSeconds.String())
