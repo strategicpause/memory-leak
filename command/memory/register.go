@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	MaxMemoryName     = "max-memory"
-	BlockSizeName     = "block-size"
-	StepDurationName  = "step-duration"
-	PauseDurationName = "pause-duration"
+	MaxMemoryName      = "max-memory"
+	BlockSizeName      = "block-size"
+	StepDurationName   = "step-duration"
+	PauseDurationName  = "pause-duration"
+	WithRandomDataName = "with-random-data"
 )
 
 func Register() cli.Command {
@@ -44,6 +45,9 @@ func flags() []cli.Flag {
 			Usage: "Time to wait, in seconds, after all memory has been allocated.",
 			Value: 0,
 		},
+		cli.BoolFlag{
+			Name: WithRandomDataName,
+		},
 	}
 }
 
@@ -67,6 +71,7 @@ func action(ctx *cli.Context) error {
 		BlockSizeInBytes:   uint64(blockSize),
 		StepTimeInSeconds:  ctx.Duration(StepDurationName),
 		PauseTimeInSeconds: ctx.Duration(PauseDurationName),
+		RandomData:         ctx.Bool(WithRandomDataName),
 	}
 
 	return memoryLeak(params)

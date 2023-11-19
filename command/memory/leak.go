@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"crypto/rand"
 	"fmt"
 	"github.com/strategicpause/memory-leak/metrics"
 	"time"
@@ -11,6 +12,7 @@ type Params struct {
 	BlockSizeInBytes   uint64
 	StepTimeInSeconds  time.Duration
 	PauseTimeInSeconds time.Duration
+	RandomData         bool
 }
 
 func memoryLeak(params *Params) error {
@@ -21,8 +23,13 @@ func memoryLeak(params *Params) error {
 
 	for i := 0; i < numEntries; i++ {
 		list[i] = make([]byte, params.BlockSizeInBytes)
-		for j := 0; j < int(params.BlockSizeInBytes); j++ {
-			list[i][j] = 0
+		if params.RandomData {
+			_, _ = rand.Read(list[i])
+		} else {
+			// This will result in allocating memory from the virtual address space.
+			for j := 0; j < int(params.BlockSizeInBytes); j++ {
+				list[i][j] = 0
+			}
 		}
 		metrics.PrintMemory()
 		time.Sleep(params.StepTimeInSeconds)
@@ -36,6 +43,7 @@ func memoryLeak(params *Params) error {
 }
 
 func PrintParams(params *Params) {
-	fmt.Printf("MaxMemory = %v MiB\tBlockSize = %v MiB\tPauseTime = %v.\n",
-		metrics.BToMiB(params.MaxMemoryInBytes), metrics.BToMiB(params.BlockSizeInBytes), params.PauseTimeInSeconds)
+	fmt.Printf("MaxMemory = %v MiB\tBlockSize = %v MiB\tPauseTime = %v\tRandomData = %t.\n",
+		metrics.BToMiB(params.MaxMemoryInBytes), metrics.BToMiB(params.BlockSizeInBytes),
+		params.PauseTimeInSeconds, params.RandomData)
 }
